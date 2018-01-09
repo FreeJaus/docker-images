@@ -1,0 +1,16 @@
+FROM debian:stretch-slim AS do-3dprint__cura
+RUN apt update && apt install -y curl libgl1-mesa-glx libfuse2 libglib2.0-0 && \
+  cd /opt && \
+  curl -L https://github.com/Ultimaker/Cura/releases/download/3.1.0/Cura-3.1.0.AppImage > Cura.AppImage && \
+  chmod +x Cura.AppImage && \
+  ./Cura.AppImage --appimage-extract && \
+  mv squashfs-root cura && \
+  rm -rf Cura.AppImage && \
+  echo "/opt/cura/AppRun" > /usr/bin/cura && \
+  chmod +x /usr/bin/cura
+
+#---
+
+#https://github.com/davidk/docker-slic3r-prusa3d
+
+FROM keyglitch/docker-slic3r-prusa3d AS do-3dprint__slic3r-prusa3d

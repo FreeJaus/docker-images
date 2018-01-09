@@ -1,0 +1,33 @@
+FROM debian:stretch-slim AS do-cad__openscad
+RUN apt update && apt install -y openscad
+
+#--
+
+FROM debian:stretch-slim AS do-cad__freecad-base
+RUN apt update && apt install -y curl libgl1-mesa-glx libfontconfig1 libglib2.0-0 libsm6 && \
+  cd /opt && \
+  curl -L https://github.com/FreeCAD/FreeCAD/releases/download/0.16.6712/FreeCAD-0.16.6712.glibc2.17-x86_64.AppImage > FreeCAD.AppImage && \
+  chmod +x FreeCAD.AppImage && \
+  ./FreeCAD.AppImage --appimage-extract && \
+  mv squashfs-root freecad && \
+  rm -rf FreeCAD.AppImage && \
+  echo "/opt/freecad/AppRun" > /usr/bin/freecad && \
+  chmod +x /usr/bin/freecad
+
+#--
+
+FROM debian:stretch-slim AS git
+
+RUN apt update && apt install -y git && \
+  mkdir -p /root/.FreeCAD/Mod && \
+  cd /root/.FreeCAD/Mod && \
+  git clone https://github.com/hamish2014/FreeCAD_drawing_dimensioning.git && \
+  git clone https://github.com/yorikvanhavre/Draft-dxf-importer
+
+#--
+
+FROM python:stretch AS do-cad__freecad
+COPY --from=do-cad__freecad-base /opt/freecad /opt/freecad
+COPY --from=do-cad__freecad-base /usr/bin/freecad /usr/bin/freecad
+COPY --from=git /root/.FreeCAD /root/.FreeCAD
+RUN apt update && apt install -y openscad python-numpy python-pyside
