@@ -2,19 +2,9 @@
 
 set -e
 
-wd() { pwd; }
-args="$@"
-
 if [ "$OS" = "Windows_NT" ]; then
   [ "$XMING_PATH" = "" ]     &&     XMING_PATH="/c/Program\ Files\ \(x86\)/Xming/Xming.exe"
   [ "$DOCKER_DISPLAY" = "" ] && DOCKER_DISPLAY="`ipconfig | grep 'IPv4' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | grep "^10\.0\.*"`:0"
-
-  docker_version="`docker version | grep "Version" | head -1 | sed "s|.*Version.*\([0-9][0-9]\)\.\([0-9][0-9]\)\..*-ce|\1 \2|"`"
-  if [ `echo "$docker_version" | cut -d " " -f1` -eq 17 ]; then
-    if [ `echo "$docker_version" | cut -d " " -f2` -eq 12 ]; then
-      wd() { cygpath -w -a . | sed "s|\(\\\\\)|\1\1|g"; }
-    fi
-  fi
 else
   [ "$DOCKER_DISPLAY" = "" ] && DOCKER_DISPLAY=unix$DISPLAY
 fi
@@ -77,6 +67,6 @@ if [ -z "$SKIP_DISP" ]; then
   fi
 fi
 
-echo "[DOCKER GUIAPP] Run $(command -v winpty) docker run $GUIAPP $(sed 's|$(wd)|'"$(wd)"'|g' <<< $@)"
+echo "[DOCKER GUIAPP] Run $(command -v winpty) docker run $GUIAPP $@"
 
-$(command -v winpty) docker run $GUIAPP $(sed 's|$(wd)|'"$(wd)"'|g' <<< $@)
+$(command -v winpty) docker run $GUIAPP $@
