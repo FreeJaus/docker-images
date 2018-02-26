@@ -1,0 +1,24 @@
+FROM alpine AS do-octave__base
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories \
+ && sed -i -e 's/v[0-9]\.[0-9]/edge/g' /etc/apk/repositories \
+ && apk add -U --no-cache texinfo octave git \
+ && git clone https://github.com/fangq/jsonlab /jsonlab
+
+#---
+
+FROM do-octave__base AS pkgs_inst
+ADD octave_pkgs.tgz ./
+RUN apk add -U --no-cache g++ make \
+ && cd /octave_pkgs \
+ && octave-cli -qf pkg.inst \
+ && mkdir -p /pkgs \
+ && mv /usr/share/octave/* /pkgs/ \
+ && rm -rf /octave_pkgs
+
+FROM do-octave__base AS do-octave__pkgs
+COPY --from=pkgs_inst /pkgs/ /usr/share/octave
+
+#---
+
+FROM freejaus/octave:pkgs AS do-octave__image
+RUN apk add -U --no-cache gnuplot ttf-freefont mesa-dri-swrast ghostscript imagemagick

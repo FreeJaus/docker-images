@@ -11,6 +11,15 @@ fi
 for f in $@; do
   for tag in `sed -e 's/FROM.*AS do-//;tx;d;:x' $f`; do
     printf "\n[DOCKER build] ${tag}\n\n"
-    docker build -t "freejaus/`echo $tag | sed -e 's/__/:/g'`" --target "do-$tag" - < "$f"
+    if [ "$(echo "$tag" | grep "octave__")" != "" ]; then
+      mkdir -p build_tmp && cd build_tmp
+      cp ../dockerfiles/Dockerfile-octave ./Dockerfile
+      ../get_octave_pkgs.sh;
+      docker build -t "freejaus/`echo $tag | sed -e 's/__/:/g'`" --target "do-$tag" .
+      cd ..
+      rm -rf build_tmp
+    else
+      docker build -t "freejaus/`echo $tag | sed -e 's/__/:/g'`" --target "do-$tag" - < "$f"
+    fi
   done
 done
