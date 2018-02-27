@@ -5,6 +5,7 @@ mkdir -p octave_pkgs
 cd octave_pkgs
 wget -L https://downloads.sourceforge.net/project/octave/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz
 wget -L https://downloads.sourceforge.net/project/octave/Octave%20Forge%20Packages/Individual%20Package%20Releases/fuzzy-logic-toolkit-0.4.5.tar.gz
+wget -L https://downloads.sourceforge.net/project/octave/Octave%20Forge%20Packages/Individual%20Package%20Releases/io-2.4.10.tar.gz
 if [ -f "../pkg.inst" ]; then rm ../pkg.inst; fi
 for f in *.tar.gz; do echo "pkg install $f" >> ../pkg.inst; done
 mv ../pkg.inst ./
