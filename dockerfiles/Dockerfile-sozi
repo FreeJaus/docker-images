@@ -1,0 +1,6 @@
+FROM debian:buster-slim
+
+RUN apt update && apt install -y curl && \
+  curl -L https://github.com/senshu/Sozi/releases/download/v18.04/sozi_18.04-1523042682_amd64.deb -o sozi.deb && \
+  dpkg -i sozi.deb || apt install -fy && \
+  dpkg -i sozi.deb
